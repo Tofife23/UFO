@@ -12,32 +12,97 @@
       overflow: hidden;
       cursor: none;
     }
-    model-viewer {
+
+    .ufo-wrapper {
       position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    model-viewer {
       width: 150px;
       height: 150px;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
+      display: block;
+    }
+
+    /* Skenovací kužel */
+    .beam {
+      position: absolute;
+      top: 100px; /* začíná těsně pod UFO */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 200px;
+      background: radial-gradient(ellipse at top, rgba(0,255,150,0.4) 0%, rgba(0,255,150,0) 70%);
+      filter: blur(4px);
+      opacity: 0.6;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; transform: translateX(-50%) scaleY(0.9); }
+      50% { opacity: 0.8; transform: translateX(-50%) scaleY(1.05); }
+      100% { opacity: 0.4; transform: translateX(-50%) scaleY(0.9); }
+    }
+
+    /* Blikající světlo */
+    .blinker {
+      position: absolute;
+      top: 85px; /* těsně pod UFO */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: red;
+      box-shadow: 0 0 20px red;
+      animation: blink 0.8s infinite alternate;
+    }
+
+    @keyframes blink {
+      0% { background: red; box-shadow: 0 0 15px red; }
+      50% { background: blue; box-shadow: 0 0 15px blue; }
+      100% { background: red; box-shadow: 0 0 15px red; }
     }
   </style>
 </head>
 <body>
 
-  <model-viewer src="blue_ufo.glb"
-                alt="UFO"
-                auto-rotate
-                camera-controls
-                disable-zoom
-                environment-image="neutral"
-                shadow-intensity="1">
-  </model-viewer>
+  <div class="ufo-wrapper" id="ufoWrapper">
+    <model-viewer src="ufo.glb"
+                  alt="UFO"
+                  auto-rotate
+                  disable-zoom
+                  environment-image="studio"
+                  shadow-intensity="1">
+    </model-viewer>
+    <div class="beam"></div>
+    <div class="blinker"></div>
+  </div>
 
   <script>
-    const ufo = document.querySelector("model-viewer");
+    const ufoWrapper = document.getElementById("ufoWrapper");
+    let targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight / 2;
+    let currentX = targetX;
+    let currentY = targetY;
+
     document.addEventListener("mousemove", (e) => {
-      ufo.style.left = e.pageX + "px";
-      ufo.style.top = e.pageY + "px";
+      targetX = e.pageX;
+      targetY = e.pageY;
     });
+
+    function animate() {
+      // velké zpoždění (plave pomalu za myší)
+      currentX += (targetX - currentX) * 0.03;
+      currentY += (targetY - currentY) * 0.03;
+
+      ufoWrapper.style.left = currentX + "px";
+      ufoWrapper.style.top = currentY + "px";
+
+      requestAnimationFrame(animate);
+    }
+    animate();
   </script>
 
 </body>
